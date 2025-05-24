@@ -2,11 +2,11 @@ package clog_test
 
 import (
 	"context"
-	"github.com/stretchr/testify/require"
 	"io"
 	"log/slog"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 
 	"github.com/yusupovanton/golib/clog"
@@ -14,7 +14,7 @@ import (
 
 func BenchmarkClog(b *testing.B) {
 	logger := clog.NewCustomLogger(io.Discard, io.Discard, false, slog.LevelInfo)
-	ctx := context.WithValue(context.Background(), "userID", 12345)
+	ctx := context.WithValue(b.Context(), "userID", 12345)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
@@ -24,7 +24,7 @@ func BenchmarkClog(b *testing.B) {
 
 func BenchmarkSlog(b *testing.B) {
 	logger := slog.New(slog.NewJSONHandler(io.Discard, &slog.HandlerOptions{Level: slog.LevelInfo}))
-	ctx := context.WithValue(context.Background(), "userID", 12345)
+	ctx := context.WithValue(b.Context(), "userID", 12345)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
