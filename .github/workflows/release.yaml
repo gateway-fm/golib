@@ -16,10 +16,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get latest tag
+      - name: Get latest semver tag
         id: get_tag
         run: |
-          latest=$(git describe --tags --abbrev=0)
+          latest=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1)
           echo "latest=$latest" >> "$GITHUB_OUTPUT"
 
       - name: Bump minor version
