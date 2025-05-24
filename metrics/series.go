@@ -2,14 +2,15 @@ package metrics
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 const (
-	operationCountMetricName    = "operation_count"
-	operationDurationMetricName = "operation_duration_seconds"
+	countMetricNameSuffix    = "count"
+	durationMetricNameSuffix = "duration_seconds"
 )
 
 type (
@@ -39,6 +40,10 @@ const (
 	SeriesTypeDatabusConsumer SeriesType = "databus_consumer"
 	SeriesTypeServer          SeriesType = "server"
 )
+
+func CustomSeriesType(t string) SeriesType {
+	return SeriesType(t)
+}
 
 // NewSeries creates a new Series instance with the given type and subType.
 func NewSeries(st SeriesType, subType string) Series {
@@ -115,7 +120,7 @@ func (s Series) Info(message string) (string, prometheus.Labels) {
 		"status":      seriesTypeInfo,
 		"message":     message,
 	}
-	return operationCountMetricName, mergeLabels(labels, s.labels)
+	return s.fullCounterName(), mergeLabels(labels, s.labels)
 }
 
 // Success returns the metric name and labels for a success event.
@@ -127,7 +132,7 @@ func (s Series) Success() (string, prometheus.Labels) {
 		"status":      seriesTypeSuccess,
 		"message":     "",
 	}
-	return operationCountMetricName, mergeLabels(labels, s.labels)
+	return s.fullCounterName(), mergeLabels(labels, s.labels)
 }
 
 // Error returns the metric name and labels for an error event.
@@ -139,7 +144,7 @@ func (s Series) Error(message string) (string, prometheus.Labels) {
 		"status":      seriesTypeError,
 		"message":     message,
 	}
-	return operationCountMetricName, mergeLabels(labels, s.labels)
+	return s.fullCounterName(), mergeLabels(labels, s.labels)
 }
 
 // Duration returns the metric name and labels for recording a duration.
@@ -151,7 +156,7 @@ func (s Series) Duration(d time.Duration) (name string, labels prometheus.Labels
 		"status":      seriesTypeDuration,
 		"message":     "",
 	}
-	return operationDurationMetricName, mergeLabels(labels, s.labels), d.Seconds()
+	return s.fullDurationName(), mergeLabels(labels, s.labels), d.Seconds()
 }
 
 // appendOperation appends the operation to the Series operation string.
@@ -165,4 +170,20 @@ func mergeLabels(base, additional prometheus.Labels) prometheus.Labels {
 		base[k] = v
 	}
 	return base
+}
+
+func (s Series) baseName() string {
+	return sanitize(s.seriesType.String()) + "_" + sanitize(s.subType) + "_" + sanitize(s.operation)
+}
+
+func sanitize(name string) string {
+	return strings.ToLower(strings.ReplaceAll(name, "-", "_"))
+}
+
+func (s Series) fullCounterName() string {
+	return s.baseName() + "_" + countMetricNameSuffix
+}
+
+func (s Series) fullDurationName() string {
+	return s.baseName() + "_" + durationMetricNameSuffix
 }

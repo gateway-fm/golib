@@ -2,7 +2,6 @@ package metrics
 
 import (
 	"sort"
-	"strings"
 	"sync"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -33,25 +32,20 @@ func NewRegistry(subsystem, namespace string) Registry {
 	return r
 }
 
-func (r *registry) sanitizeMetricName(name string) string {
-	return strings.ReplaceAll(name, "-", "_")
-}
-
 // Inc increments a counter for the given Series, dynamically determining label names from the input labels.
 func (r *registry) Inc(name string, labels prometheus.Labels) {
 	r.metricsMu.Lock()
 	defer r.metricsMu.Unlock()
 
-	sanitized := r.sanitizeMetricName(name)
-	counter, exists := r.counters[sanitized]
+	counter, exists := r.counters[name]
 	if !exists {
 		counter = prometheus.NewCounterVec(prometheus.CounterOpts{
 			Subsystem: r.Subsystem,
 			Namespace: r.Namespace,
-			Name:      sanitized,
+			Name:      name,
 		}, getLabelNames(labels))
 		r.PromRegistry.MustRegister(counter)
-		r.counters[sanitized] = counter
+		r.counters[name] = counter
 	}
 	counter.With(labels).Inc()
 }
@@ -61,17 +55,16 @@ func (r *registry) RecordDuration(name string, labels prometheus.Labels, duratio
 	r.metricsMu.Lock()
 	defer r.metricsMu.Unlock()
 
-	sanitized := r.sanitizeMetricName(name)
-	histogram, exists := r.histograms[sanitized]
+	histogram, exists := r.histograms[name]
 	if !exists {
 		histogram = prometheus.NewHistogramVec(prometheus.HistogramOpts{
 			Subsystem: r.Subsystem,
 			Namespace: r.Namespace,
-			Name:      sanitized,
+			Name:      name,
 			Buckets:   prometheus.DefBuckets,
 		}, getLabelNames(labels))
 		r.PromRegistry.MustRegister(histogram)
-		r.histograms[sanitized] = histogram
+		r.histograms[name] = histogram
 	}
 	histogram.With(labels).Observe(duration)
 }
