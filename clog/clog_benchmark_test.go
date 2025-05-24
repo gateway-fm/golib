@@ -1,28 +1,53 @@
 package clog_test
 
 import (
-	"bytes"
+	"context"
+	"github.com/stretchr/testify/require"
+	"io"
 	"log/slog"
 	"testing"
-	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/yusupovanton/golib/clog"
 )
 
-func BenchmarkCustomLogger(b *testing.B) {
-	var buf bytes.Buffer
-
-	logger := clog.NewCustomLogger(&buf, &buf, false, slog.LevelDebug)
-
-	ctx := logger.AddKeysValuesToCtx(b.Context(), map[string]interface{}{
-		"userID":    12345,
-		"userName":  "testuser",
-		"timestamp": time.Now(),
-		"data":      []int{1, 2, 3},
-	})
+func BenchmarkClog(b *testing.B) {
+	logger := clog.NewCustomLogger(io.Discard, io.Discard, false, slog.LevelInfo)
+	ctx := context.WithValue(context.Background(), "userID", 12345)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		logger.InfoCtx(ctx, "Some test message")
+		logger.InfoCtx(ctx, "benchmarking clog")
+	}
+}
+
+func BenchmarkSlog(b *testing.B) {
+	logger := slog.New(slog.NewJSONHandler(io.Discard, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	ctx := context.WithValue(context.Background(), "userID", 12345)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		logger.InfoContext(ctx, "benchmarking slog", slog.Int("userID", 12345))
+	}
+}
+
+func BenchmarkZap(b *testing.B) {
+	cfg := zap.NewProductionConfig()
+	cfg.OutputPaths = []string{}
+	cfg.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
+	cfg.EncoderConfig.TimeKey = ""
+	cfg.EncoderConfig.LevelKey = ""
+
+	logger, _ := cfg.Build()
+	defer func() {
+		err := logger.Sync()
+		require.NoError(b, err)
+	}()
+	sugar := logger.Sugar()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		sugar.Infow("benchmarking zap", "userID", 12345)
 	}
 }

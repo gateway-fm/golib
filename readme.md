@@ -137,3 +137,15 @@ _ = pgTxManager.Do(ctx, func(ctx context.Context) error {
 	return nil
 })
 ```
+
+📊 Benchmarks
+Run on: Apple M4 Pro
+
+Command: go test -bench=. -benchmem ./...
+
+Logger	ns/op	B/op	allocs/op
+clog	296.6	24	1
+slog	322.3	48	1
+zap	44.65	4	0
+
+Zap offers the lowest allocation and latency, while clog provides richer context-aware logging on top of slog with moderate overhead.
