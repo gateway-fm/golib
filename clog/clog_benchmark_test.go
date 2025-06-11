@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 
-	"github.com/yusupovanton/golib/clog"
+	"github.com/gateway-fm/golib/clog"
 )
 
 func BenchmarkClog(b *testing.B) {

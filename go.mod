@@ -1,4 +1,4 @@
-module github.com/yusupovanton/golib
+module github.com/gateway-fm/golib
 
 go 1.24.1
 

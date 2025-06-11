@@ -114,11 +114,11 @@ formatters:
     - goimports
   settings:
     gofumpt:
-      module-path: github.com/yusupovanton/golib
+      module-path: github.com/gateway-fm/golib
       extra-rules: true
     goimports:
       local-prefixes:
-        - github.com/yusupovanton/golib
+        - github.com/gateway-fm/golib
   exclusions:
     generated: lax
     paths:

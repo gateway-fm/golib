@@ -12,7 +12,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/yusupovanton/golib/clog"
+	"github.com/gateway-fm/golib/clog"
 )
 
 const msgKey = "msg"

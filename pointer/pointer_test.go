@@ -3,7 +3,7 @@ package pointer_test
 import (
 	"testing"
 
-	"github.com/yusupovanton/golib/pointer"
+	"github.com/gateway-fm/golib/pointer"
 )
 
 func TestSafeDeref(t *testing.T) {

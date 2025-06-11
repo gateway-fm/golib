@@ -10,7 +10,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"github.com/yusupovanton/golib/clog"
+	"github.com/gateway-fm/golib/clog"
 )
 
 const (

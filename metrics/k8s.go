@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"sync/atomic"
 
-	"github.com/yusupovanton/golib/clog"
+	"github.com/gateway-fm/golib/clog"
 )
 
 type HealthChecker struct {
