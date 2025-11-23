@@ -3,8 +3,8 @@ package pgxpool
 import (
 	"context"
 
-	"github.com/jackc/pgx/v4"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type PgTransactionFactory struct {
@@ -16,11 +16,7 @@ func NewPgTransactionFactory(pool *pgxpool.Pool) *PgTransactionFactory {
 }
 
 func (f *PgTransactionFactory) Begin(ctx context.Context) (pgx.Tx, error) {
-	tx, err := f.pool.Begin(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return tx, nil
+	return f.pool.Begin(ctx)
 }
 
 func (f *PgTransactionFactory) Transaction(ctx context.Context) Transaction {
